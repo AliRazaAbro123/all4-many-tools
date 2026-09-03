@@ -63,13 +63,13 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-700 bg-clip-text text-transparent">
-                  all4
+                  All4
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-wide">
                   Free
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 font-medium hidden sm:block -mt-1">
+              <p className="text-[12px] text-slate-500 font-medium hidden sm:block -mt-1">
                 Unlimited private browser tools
               </p>
             </div>
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
                 <span className="truncate">Search unlimited PDF, image & text tools...</span>
               </span>
               <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-semibold text-slate-400 bg-white border border-slate-200 rounded px-1.5 py-0.5">
-                ⌘K
+                ⌘ + K
               </kbd>
             </button>
           </div>
@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
               className="relative p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
               title="Favorite Tools"
             >
-              <Star className="w-5 h-5 text-amber-500 fill-amber-500/10" />
+              <Star className="w-6 h-6 text-amber-500 fill-amber-500/10" />
               {favorites.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center">
                   {favorites.length}
