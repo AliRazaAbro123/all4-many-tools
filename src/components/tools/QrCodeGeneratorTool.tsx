@@ -7,7 +7,7 @@ type QrType = 'url' | 'text' | 'wifi' | 'email' | 'phone';
 
 export const QrCodeGeneratorTool: React.FC = () => {
   const [kind, setKind] = useState<QrType>('url');
-  const [value, setValue] = useState('https://all4.app');
+  const [value, setValue] = useState('https://alistacker.vercel.app/');
   const [ssid, setSsid] = useState('');
   const [wifiPass, setWifiPass] = useState('');
   const [wifiEnc, setWifiEnc] = useState('WPA');
@@ -50,7 +50,7 @@ export const QrCodeGeneratorTool: React.FC = () => {
 
   return (
     <div className="grid lg:grid-cols-12 gap-6">
-      <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200 space-y-5">
+      <div className="lg:col-span-6 bg-transparent rounded-3xl p-6 border border-slate-200 space-y-5">
         <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold">
           {(['url', 'text', 'wifi', 'email', 'phone'] as QrType[]).map((t) => (
             <button
@@ -69,18 +69,18 @@ export const QrCodeGeneratorTool: React.FC = () => {
               value={ssid}
               onChange={(e) => setSsid(e.target.value)}
               placeholder="Network name (SSID)"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-black"
             />
             <input
               value={wifiPass}
               onChange={(e) => setWifiPass(e.target.value)}
               placeholder="Wi‑Fi password"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-black text-black"
             />
             <select
               value={wifiEnc}
               onChange={(e) => setWifiEnc(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-black"
             >
               <option value="WPA">WPA / WPA2</option>
               <option value="WEP">WEP</option>
@@ -92,14 +92,14 @@ export const QrCodeGeneratorTool: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-black"
           />
         ) : kind === 'phone' ? (
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+1 555 0100"
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-black"
           />
         ) : (
           <textarea
@@ -107,18 +107,18 @@ export const QrCodeGeneratorTool: React.FC = () => {
             onChange={(e) => setValue(e.target.value)}
             rows={4}
             placeholder={kind === 'url' ? 'https://' : 'Any text'}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm"
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm text-black"
           />
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Size ({size}px)</label>
-            <input type="range" min={160} max={1024} step={16} value={size} onChange={(e) => setSize(parseInt(e.target.value, 10))} className="w-full accent-indigo-600" />
+            <input type="range" min={160} max={1024} step={16} value={size} onChange={(e) => setSize(parseInt(e.target.value, 10))} className="w-full accent-indigo-600 text-black" />
           </div>
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Error correction</label>
-            <select value={level} onChange={(e) => setLevel(e.target.value as 'L' | 'M' | 'Q' | 'H')} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold">
+            <select value={level} onChange={(e) => setLevel(e.target.value as 'L' | 'M' | 'Q' | 'H')} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold text-black">
               <option value="L">L — 7%</option>
               <option value="M">M — 15%</option>
               <option value="Q">Q — 25%</option>
@@ -127,11 +127,11 @@ export const QrCodeGeneratorTool: React.FC = () => {
           </div>
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Dots</label>
-            <input type="color" value={dark} onChange={(e) => setDark(e.target.value)} className="w-full h-10 rounded-xl border border-slate-200" />
+            <input type="color" value={dark} onChange={(e) => setDark(e.target.value)} className="w-full h-10 rounded-xl border border-slate-200 text-black" />
           </div>
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Background</label>
-            <input type="color" value={light} onChange={(e) => setLight(e.target.value)} className="w-full h-10 rounded-xl border border-slate-200" />
+            <input type="color" value={light} onChange={(e) => setLight(e.target.value)} className="w-full h-10 rounded-xl border border-slate-200 text-black" />
           </div>
         </div>
       </div>
