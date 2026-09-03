@@ -103,7 +103,7 @@ export const PasswordGeneratorTool: React.FC = () => {
   return (
     <div className="grid lg:grid-cols-12 gap-6">
       <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-slate-200 space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 ">
           <h3 className="font-bold text-slate-900 flex items-center gap-2">
             <Shield className="w-4 h-4 text-indigo-500" /> Options
           </h3>
@@ -120,11 +120,11 @@ export const PasswordGeneratorTool: React.FC = () => {
             max={64}
             value={length}
             onChange={(e) => setLength(parseInt(e.target.value, 10))}
-            className="w-full accent-indigo-600"
+            className="w-full accent-indigo-600 text-black"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+        <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-black">
           {[
             { label: 'Uppercase (A-Z)', val: upper, set: setUpper },
             { label: 'Lowercase (a-z)', val: lower, set: setLower },
@@ -139,7 +139,7 @@ export const PasswordGeneratorTool: React.FC = () => {
                 type="checkbox"
                 checked={opt.val}
                 onChange={(e) => opt.set(e.target.checked)}
-                className="accent-indigo-600"
+                className="accent-indigo-600 text-black"
               />
               {opt.label}
             </label>
@@ -151,7 +151,7 @@ export const PasswordGeneratorTool: React.FC = () => {
             type="checkbox"
             checked={excludeSimilar}
             onChange={(e) => setExcludeSimilar(e.target.checked)}
-            className="accent-indigo-600"
+            className="accent-indigo-600 text-black"
           />
           Exclude similar characters (0/O, 1/l/I)
         </label>
@@ -164,7 +164,7 @@ export const PasswordGeneratorTool: React.FC = () => {
             max={50}
             value={count}
             onChange={(e) => setCount(parseInt(e.target.value, 10) || 1)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-black"
           />
         </div>
 
@@ -202,7 +202,7 @@ export const PasswordGeneratorTool: React.FC = () => {
         </div>
 
         {passwords.length > 1 && (
-          <div className="space-y-2">
+          <div className="space-y-2 text-black">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-700">{passwords.length} passwords</span>
               <button
