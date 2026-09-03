@@ -67,18 +67,18 @@ export const LoremIpsumTool: React.FC = () => {
           ))}
         </div>
         <div>
-          <label className="text-xs font-bold block mb-1">Amount</label>
+          <label className="text-xs font-bold block mb-1 text-black">Amount</label>
           <input
             type="number"
             min={1}
             max={50}
             value={amount}
             onChange={(e) => setAmount(parseInt(e.target.value, 10) || 1)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-black"
           />
         </div>
-        <label className="flex items-center gap-2 text-xs font-semibold">
-          <input type="checkbox" checked={classic} onChange={(e) => setClassic(e.target.checked)} className="accent-indigo-600" />
+        <label className="flex items-center gap-2 text-xs font-semibold text-black">
+          <input type="checkbox" checked={classic} onChange={(e) => setClassic(e.target.checked)} className="accent-indigo-600 text-black" />
           Start with “Lorem ipsum…”
         </label>
         <button onClick={generate} className="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold text-sm">
@@ -121,7 +121,7 @@ export const LoremIpsumTool: React.FC = () => {
           onChange={(e) => setText(e.target.value)}
           rows={14}
           placeholder="Click generate to create placeholder copy"
-          className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm leading-relaxed"
+          className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm leading-relaxed text-black"
         />
       </div>
     </div>
