@@ -1,14 +1,120 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Upload,
   Download,
   RotateCw,
   FlipHorizontal,
   FlipVertical,
+  Maximize2,
 } from 'lucide-react';
 import { loadImageFromFile, canvasToBlob, downloadFile, getCleanFileName } from '../../utils/fileHelpers';
 
 type AspectRatio = 'free' | '1:1' | '16:9' | '4:3' | '9:16';
+type Handle = 'nw' | 'ne' | 'sw' | 'se';
+
+interface CropBoxState {
+  x: number; // %
+  y: number; // %
+  w: number; // %
+  h: number; // %
+}
+
+const MIN_SIZE = 5; // minimum crop box size, in %
+
+const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
+
+const getTargetRatio = (aspect: AspectRatio): number | null => {
+  switch (aspect) {
+    case '1:1':
+      return 1;
+    case '16:9':
+      return 16 / 9;
+    case '4:3':
+      return 4 / 3;
+    case '9:16':
+      return 9 / 16;
+    default:
+      return null;
+  }
+};
+
+// Ratio of crop-box width% to height% (in the % coordinate space) that
+// corresponds to the true pixel aspect ratio requested, given the image's
+// own natural dimensions.
+const getEffectiveRatio = (aspect: AspectRatio, img: HTMLImageElement | null): number | null => {
+  const targetRatio = getTargetRatio(aspect);
+  if (targetRatio === null || !img || !img.height) return null;
+  const imgRatio = img.width / img.height;
+  return targetRatio / imgRatio;
+};
+
+const HANDLE_POSITION_CLASS: Record<Handle, string> = {
+  nw: 'top-0 left-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize',
+  ne: 'top-0 right-0 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize',
+  sw: 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize',
+  se: 'bottom-0 right-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize',
+};
+
+type DragState =
+  | { type: 'move'; startPointerX: number; startPointerY: number; startBox: CropBoxState }
+  | { type: 'resize'; handle: Handle; startBox: CropBoxState };
+
+// Given a drag on a corner handle, compute the new crop box. When `ratio` is
+// provided (aspect locked), height is derived from width and anchored to the
+// corner opposite the one being dragged, so that corner stays fixed in place.
+function computeResize(
+  handle: Handle,
+  pointerX: number,
+  pointerY: number,
+  startBox: CropBoxState,
+  ratio: number | null
+): CropBoxState {
+  let x1 = startBox.x;
+  let y1 = startBox.y;
+  let x2 = startBox.x + startBox.w;
+  let y2 = startBox.y + startBox.h;
+
+  const draggingLeftEdge = handle === 'nw' || handle === 'sw';
+  const draggingTopEdge = handle === 'nw' || handle === 'ne';
+
+  if (draggingLeftEdge) {
+    x1 = clamp(pointerX, 0, x2 - MIN_SIZE);
+  } else {
+    x2 = clamp(pointerX, x1 + MIN_SIZE, 100);
+  }
+
+  if (draggingTopEdge) {
+    y1 = clamp(pointerY, 0, y2 - MIN_SIZE);
+  } else {
+    y2 = clamp(pointerY, y1 + MIN_SIZE, 100);
+  }
+
+  let w = x2 - x1;
+  let h = y2 - y1;
+
+  if (ratio) {
+    h = w / ratio;
+
+    if (draggingTopEdge) {
+      y1 = y2 - h;
+    } else {
+      y2 = y1 + h;
+    }
+
+    // If locking the ratio pushed us out of bounds, scale both dimensions
+    // down uniformly and re-anchor to the fixed corner.
+    if (y1 < 0 || y2 > 100) {
+      const overflow = y1 < 0 ? -y1 : y2 - 100;
+      const scale = Math.max(0, 1 - overflow / h);
+      w *= scale;
+      h *= scale;
+      if (draggingLeftEdge) x1 = x2 - w; else x2 = x1 + w;
+      if (draggingTopEdge) y1 = y2 - h; else y2 = y1 + h;
+    }
+  }
+
+  return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+}
 
 export const ImageCropperTool: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -19,10 +125,13 @@ export const ImageCropperTool: React.FC = () => {
   const [flipH, setFlipH] = useState<boolean>(false);
   const [flipV, setFlipV] = useState<boolean>(false);
 
-  // Crop box parameters in percentages (0-100)
-  const [cropBox, setCropBox] = useState({ x: 10, y: 10, w: 80, h: 80 });
+  // Crop box parameters in percentages (0-100), relative to the displayed image.
+  // Defaults to the FULL image (flush with every edge) instead of a fixed inset.
+  const [cropBox, setCropBox] = useState<CropBoxState>({ x: 0, y: 0, w: 100, h: 100 });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<DragState | null>(null);
 
   const handleFile = async (selectedFile: File) => {
     if (!selectedFile.type.startsWith('image/')) return;
@@ -33,30 +142,90 @@ export const ImageCropperTool: React.FC = () => {
       setRotation(0);
       setFlipH(false);
       setFlipV(false);
-      setCropBox({ x: 10, y: 10, w: 80, h: 80 });
+      setAspect('free');
+      setCropBox({ x: 0, y: 0, w: 100, h: 100 });
     } catch (e) {
       console.error(e);
     }
   };
 
-  // Adjust cropBox height when aspect ratio changes
+  // Adjust cropBox height when aspect ratio changes, keeping the box's
+  // top-left corner fixed and clamping it to stay on-canvas.
   useEffect(() => {
-    if (aspect === 'free') return;
-    let targetRatio = 1;
-    if (aspect === '1:1') targetRatio = 1;
-    if (aspect === '16:9') targetRatio = 16 / 9;
-    if (aspect === '4:3') targetRatio = 4 / 3;
-    if (aspect === '9:16') targetRatio = 9 / 16;
+    if (aspect === 'free' || !imgElement) return;
+    const ratio = getEffectiveRatio(aspect, imgElement);
+    if (!ratio) return;
 
-    if (imgElement) {
-      const imgRatio = imgElement.width / imgElement.height;
-      const calcH = cropBox.w / (targetRatio / imgRatio);
-      setCropBox((prev) => ({
-        ...prev,
-        h: Math.min(100 - prev.y, Math.max(10, calcH)),
-      }));
-    }
+    setCropBox((prev) => {
+      let w = prev.w;
+      let h = w / ratio;
+      if (prev.y + h > 100) {
+        h = 100 - prev.y;
+        w = h * ratio;
+      }
+      if (h < MIN_SIZE || w < MIN_SIZE) return prev;
+      return { ...prev, w, h };
+    });
   }, [aspect, imgElement]);
+
+  const getRelativePercent = useCallback((clientX: number, clientY: number) => {
+    const rect = workspaceRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0 || rect.height === 0) return { xPct: 0, yPct: 0 };
+    return {
+      xPct: clamp(((clientX - rect.left) / rect.width) * 100, 0, 100),
+      yPct: clamp(((clientY - rect.top) / rect.height) * 100, 0, 100),
+    };
+  }, []);
+
+  const onBoxPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const { xPct, yPct } = getRelativePercent(e.clientX, e.clientY);
+    dragRef.current = { type: 'move', startPointerX: xPct, startPointerY: yPct, startBox: { ...cropBox } };
+  };
+
+  const onHandlePointerDown = (handle: Handle) => (e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { type: 'resize', handle, startBox: { ...cropBox } };
+  };
+
+  const onDragMove = (e: React.PointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    e.preventDefault();
+    const { xPct, yPct } = getRelativePercent(e.clientX, e.clientY);
+
+    if (drag.type === 'move') {
+      const newX = clamp(drag.startBox.x + (xPct - drag.startPointerX), 0, 100 - drag.startBox.w);
+      const newY = clamp(drag.startBox.y + (yPct - drag.startPointerY), 0, 100 - drag.startBox.h);
+      setCropBox((prev) => ({ ...prev, x: newX, y: newY }));
+    } else {
+      const ratio = getEffectiveRatio(aspect, imgElement);
+      setCropBox(computeResize(drag.handle, xPct, yPct, drag.startBox, ratio));
+    }
+  };
+
+  const onDragEnd = () => {
+    dragRef.current = null;
+  };
+
+  const resetCropToFull = () => {
+    const ratio = getEffectiveRatio(aspect, imgElement);
+    if (!ratio) {
+      setCropBox({ x: 0, y: 0, w: 100, h: 100 });
+      return;
+    }
+    let w = 100;
+    let h = w / ratio;
+    if (h > 100) {
+      h = 100;
+      w = h * ratio;
+    }
+    setCropBox({ x: 0, y: 0, w, h });
+  };
 
   const handleDownload = async () => {
     if (!imgElement || !file) return;
@@ -203,34 +372,50 @@ export const ImageCropperTool: React.FC = () => {
 
             {/* Manual Sliders for Crop Area */}
             <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                Crop Area Adjusters
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  Crop Area
+                </span>
+                <button
+                  onClick={resetCropToFull}
+                  className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700"
+                >
+                  <Maximize2 className="w-3 h-3" />
+                  Full Image
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
+                Drag the box on the image to move it, or drag a corner to resize.
+              </p>
               <div>
                 <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
                   <span>Crop Width</span>
-                  <span>{cropBox.w}%</span>
+                  <span>{Math.round(cropBox.w)}%</span>
                 </div>
                 <input
                   type="range"
-                  min="20"
-                  max="100"
+                  min={MIN_SIZE}
+                  max={100 - cropBox.x}
                   value={cropBox.w}
-                  onChange={(e) => setCropBox((p) => ({ ...p, w: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setCropBox((p) => ({ ...p, w: clamp(parseInt(e.target.value, 10), MIN_SIZE, 100 - p.x) }))
+                  }
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
               </div>
               <div>
                 <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
                   <span>Crop Height</span>
-                  <span>{cropBox.h}%</span>
+                  <span>{Math.round(cropBox.h)}%</span>
                 </div>
                 <input
                   type="range"
-                  min="20"
-                  max="100"
+                  min={MIN_SIZE}
+                  max={100 - cropBox.y}
                   value={cropBox.h}
-                  onChange={(e) => setCropBox((p) => ({ ...p, h: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setCropBox((p) => ({ ...p, h: clamp(parseInt(e.target.value, 10), MIN_SIZE, 100 - p.y) }))
+                  }
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
               </div>
@@ -249,32 +434,50 @@ export const ImageCropperTool: React.FC = () => {
           <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex-1 min-h-[380px] bg-slate-100 dark:bg-slate-950 rounded-2xl p-4 flex items-center justify-center overflow-hidden relative border border-slate-200/60 dark:border-slate-800">
               {imgElement && (
-                <div className="relative inline-block max-h-[460px] max-w-full">
+                <div ref={workspaceRef} className="relative inline-block max-h-[460px] max-w-full">
                   <img
                     src={imgElement.src}
                     alt="Transforming preview"
+                    draggable={false}
                     style={{
                       transform: `rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`,
                       maxHeight: '440px',
                       maxWidth: '100%',
                       objectFit: 'contain',
                     }}
-                    className="rounded shadow-md transition-transform duration-200"
+                    className="rounded shadow-md transition-transform duration-200 select-none"
                   />
 
-                  {/* Crop Overlay Box */}
+                  {/* Crop Overlay Box - draggable & resizable */}
                   <div
-                    className="absolute border-2 border-indigo-500 bg-indigo-500/10 shadow-2xl rounded pointer-events-none"
+                    onPointerDown={onBoxPointerDown}
+                    onPointerMove={onDragMove}
+                    onPointerUp={onDragEnd}
+                    onPointerCancel={onDragEnd}
+                    className="absolute border-2 border-indigo-500 bg-indigo-500/10 shadow-2xl rounded cursor-move select-none"
                     style={{
                       left: `${cropBox.x}%`,
                       top: `${cropBox.y}%`,
                       width: `${cropBox.w}%`,
                       height: `${cropBox.h}%`,
+                      touchAction: 'none',
                     }}
                   >
-                    <div className="absolute top-1 left-1 text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded shadow-xs">
+                    <div className="absolute top-1 left-1 text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded shadow-xs pointer-events-none">
                       Crop Area
                     </div>
+
+                    {(['nw', 'ne', 'sw', 'se'] as Handle[]).map((h) => (
+                      <div
+                        key={h}
+                        onPointerDown={onHandlePointerDown(h)}
+                        onPointerMove={onDragMove}
+                        onPointerUp={onDragEnd}
+                        onPointerCancel={onDragEnd}
+                        style={{ touchAction: 'none' }}
+                        className={`absolute w-4 h-4 rounded-full bg-white border-2 border-indigo-600 shadow-md hover:scale-125 transition-transform ${HANDLE_POSITION_CLASS[h]}`}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
