@@ -31,8 +31,10 @@ import { ColorConverterTool } from './ColorConverterTool';
 import { TextDiffTool } from './TextDiffTool';
 import { RandomNumberTool } from './RandomNumberTool';
 import ImageUpscalerAITool  from './ImageUpscalerAITool'
+import ImageBgRemoverTool from './ImageBgRemoverTool';
 
 export const TOOL_COMPONENTS: Record<string, React.ComponentType> = {
+  'image-bg-remover': ImageBgRemoverTool,
   'image-upscaler-ai': ImageUpscalerAITool,
   'pdf-to-image': PdfToImageTool,
   'image-to-pdf': ImageToPdfTool,
