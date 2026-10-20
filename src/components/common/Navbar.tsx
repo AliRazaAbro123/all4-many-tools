@@ -57,8 +57,8 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
       <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200 font-extrabold text-lg">
-              4
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200 font-extrabold text-[10px]">
+              ALL4
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
                 <span className="truncate">Search unlimited PDF, image & text tools...</span>
               </span>
               <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-semibold text-slate-400 bg-white border border-slate-200 rounded px-1.5 py-0.5">
-                ⌘ + K
+                CTRL + K
               </kbd>
             </button>
           </div>
@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({ favorites, toggleFavorite }) => 
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors md:hidden"
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors md:hidden "
               title="Search tools"
             >
               <Search className="w-5 h-5" />
