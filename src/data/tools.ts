@@ -16,6 +16,43 @@ export function toRoutePath(slug: string): string {
 
 const RAW_TOOLS: ToolItem[] = [
   {
+  id: 'image-upscaler-ai',
+  name: 'AI Image Upscaler',
+  slug: 'image-upscaler-ai',
+  path: '/image-upscaler-ai',
+  shortDescription: 'Upscale images 2x, 4x, or 8x with AI-enhanced detail reconstruction and noise reduction.',
+  fullDescription: 'Transform low-resolution photos into crisp, high-resolution images using AI technology. Choose scale factors (2x / 4x / 8x), preview the enhancement in real time, and download sharpened PNG/JPG results. Everything runs locally in your browser for complete privacy.',
+  category: 'image',
+  icon: 'Sparkles',         // lucide-react icon
+  badge: 'AI Powered',
+  isPopular: true,
+  keywords: ['ai image upscaler', 'upscale photo', '4x image enhancer', 'ai upscale', 'image upscaler online'],
+  seoTitle: 'Free AI Image Upscaler - Enhance & Upscale Photos Online',
+  seoDescription: 'Upscale images 2x, 4x, or 8x with AI for free. Improve resolution, reduce noise, and sharpen details instantly in your browser.',
+  features: [
+    'AI-powered 2x, 4x & 8x upscaling',
+    'Smart noise reduction & edge repair',
+    'Drag & drop PNG, JPG, WebP',
+    'Before / After comparison slider',
+    '100% private - no server uploads',
+    'Batch processing support'
+  ],
+  faqs: [
+    {
+      question: 'How does the AI upscaling work?',
+      answer: 'The model analyzes pixel patterns and reconstructs high-frequency details that are lost in low-resolution images. It is not just resizing — it generates realistic textures and sharp edges.'
+    },
+    {
+      question: 'What is the maximum file size?',
+      answer: 'For best browser performance we recommend images under 10MB with dimensions up to 2000x2000px. Very large images may take longer to process.'
+    },
+    {
+      question: 'Can I use this for print-quality images?',
+      answer: 'Yes. A 4x upscale on a 600x800 photo yields 2400x3200px — sufficient for high-quality prints and presentations.'
+    }
+  ]
+},
+  {
     id: 'pdf-to-image',
     name: 'PDF to Image Converter',
     slug: 'pdf-to-image',

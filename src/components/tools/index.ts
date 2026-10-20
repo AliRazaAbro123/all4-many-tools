@@ -30,8 +30,10 @@ import { UnitConverterTool } from './UnitConverterTool';
 import { ColorConverterTool } from './ColorConverterTool';
 import { TextDiffTool } from './TextDiffTool';
 import { RandomNumberTool } from './RandomNumberTool';
+import ImageUpscalerAITool  from './ImageUpscalerAITool'
 
 export const TOOL_COMPONENTS: Record<string, React.ComponentType> = {
+  'image-upscaler-ai': ImageUpscalerAITool,
   'pdf-to-image': PdfToImageTool,
   'image-to-pdf': ImageToPdfTool,
   'image-resizer': ImageResizerTool,
