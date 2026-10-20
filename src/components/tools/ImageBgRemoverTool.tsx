@@ -318,7 +318,7 @@ export default function ImageBgRemoverTool() {
                     type="color"
                     value={customColor}
                     onChange={(e) => applyBackgroundChange('custom', e.target.value)}
-                    className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
+                    className="opacity-0 absolute inset-0 cursor-pointer w-full h-full  text-black"
                   />
                   <Sliders size={14} className="text-white drop-shadow" />
                 </label>

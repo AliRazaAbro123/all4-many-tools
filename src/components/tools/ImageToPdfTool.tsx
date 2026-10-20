@@ -184,7 +184,7 @@ export const ImageToPdfTool: React.FC = () => {
                 type="text"
                 value={pdfName}
                 onChange={(e) => setPdfName(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+                className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none  text-black"
                 placeholder="Name your PDF file"
               />
             </div>

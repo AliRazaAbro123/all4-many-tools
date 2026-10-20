@@ -101,7 +101,7 @@ export const CaseConverterTool: React.FC = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm"
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-sm text-black"
           />
         </div>
         <div className="bg-white rounded-3xl p-5 border border-slate-200">

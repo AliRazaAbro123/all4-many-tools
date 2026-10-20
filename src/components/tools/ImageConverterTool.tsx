@@ -192,7 +192,7 @@ export const ImageConverterTool: React.FC = () => {
                     max="100"
                     value={quality}
                     onChange={(e) => handleQualityChange(parseInt(e.target.value))}
-                    className="w-full accent-indigo-600 cursor-pointer"
+                    className="w-full accent-indigo-600 cursor-pointer  text-black"
                   />
                 </div>
               )}

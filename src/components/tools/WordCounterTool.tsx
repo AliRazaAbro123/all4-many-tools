@@ -76,7 +76,7 @@ export const WordCounterTool: React.FC = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={12}
-          className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500  text-black"
           placeholder="Start typing or paste text..."
         />
       </div>

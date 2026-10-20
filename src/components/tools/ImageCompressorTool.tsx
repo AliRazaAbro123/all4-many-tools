@@ -128,7 +128,7 @@ export const ImageCompressorTool: React.FC = () => {
                 max="95"
                 value={quality}
                 onChange={(e) => setQuality(parseInt(e.target.value))}
-                className="w-full accent-indigo-600 cursor-pointer"
+                className="w-full accent-indigo-600 cursor-pointer  text-black"
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-medium mt-1">
                 <span>Max Compression</span>
@@ -225,7 +225,7 @@ export const ImageCompressorTool: React.FC = () => {
                     max="100"
                     value={comparePos}
                     onChange={(e) => setComparePos(parseInt(e.target.value))}
-                    className="absolute inset-0 opacity-0 cursor-ew-resize w-full h-full z-10"
+                    className="absolute inset-0 opacity-0 cursor-ew-resize w-full h-full z-10  text-black"
                   />
                 </div>
               )}

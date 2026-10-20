@@ -120,12 +120,12 @@ export const ColorConverterTool: React.FC = () => {
             type="color"
             value={hex.slice(0, 7)}
             onChange={(e) => setHex(e.target.value.toUpperCase())}
-            className="w-16 h-16 rounded-2xl border border-slate-200 cursor-pointer"
+            className="w-16 h-16 rounded-2xl border border-slate-200 cursor-pointer  text-black"
           />
           <input
             value={hex}
             onChange={(e) => setHex(e.target.value)}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 font-mono font-bold"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 font-mono font-bold  text-black"
           />
         </div>
         <div

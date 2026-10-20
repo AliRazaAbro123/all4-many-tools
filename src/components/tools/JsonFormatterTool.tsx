@@ -50,7 +50,7 @@ export const JsonFormatterTool: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={16}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs code-font"
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs code-font  text-black"
           />
         </div>
         <div className="bg-white rounded-3xl p-4 border border-slate-200">
