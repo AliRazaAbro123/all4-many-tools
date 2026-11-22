@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node init && vite",
-    "build": "node init && vite build",
+    "dev": "vite",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
